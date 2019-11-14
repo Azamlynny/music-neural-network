@@ -18,7 +18,7 @@ def generate():
     # Get all pitch names
     pitchnames = sorted(set(item for item in notes))
     # Get all pitch names
-    n_vocab = len(set(notes)) + 1
+    n_vocab = len(set(notes))
 
     network_input, normalized_input = prepare_sequences(notes, pitchnames, n_vocab)
     model = create_network(normalized_input, n_vocab)
@@ -30,7 +30,7 @@ def prepare_sequences(notes, pitchnames, n_vocab):
     # map between notes and integers and back
     note_to_int = dict((note, number) for number, note in enumerate(pitchnames))
 
-    sequence_length = 100
+    sequence_length = 1
     network_input = []
     output = []
     for i in range(0, len(notes) - sequence_length, 1):
@@ -62,7 +62,7 @@ def create_network(network_input, n_vocab):
     model.add(LSTM(512))
     model.add(Dense(256))
     model.add(Dropout(0.3))
-    model.add(Dense(n_vocab))
+    model.add(Dense(n_vocab)) 
     model.add(Activation('softmax'))
     model.compile(loss='categorical_crossentropy', optimizer='rmsprop')
 
@@ -81,8 +81,8 @@ def generate_notes(model, network_input, pitchnames, n_vocab):
     pattern = network_input[start]
     prediction_output = []
 
-    # generate 500 notes
-    for note_index in range(500):
+    # generate 128 notes
+    for note_index in range(128):
         prediction_input = numpy.reshape(pattern, (1, len(pattern), 1))
         prediction_input = prediction_input / float(n_vocab)
 
@@ -130,5 +130,5 @@ def create_midi(prediction_output):
 
     midi_stream.write('midi', fp='test_output.mid')
 
-if __name__ == '__main__':
+if __name__ == '__main__': 
     generate()
