@@ -9,7 +9,7 @@ data_directory = "./Data2/"
 data_file = "Data_Tunes.txt"
 charIndex_json = "char_to_index.json"
 model_weights_directory = './Data2/Model_Weights/'
-BATCH_SIZE = 16
+BATCH_SIZE = 16 
 SEQ_LENGTH = 64
 
 def read_batches(all_chars, unique_chars):
@@ -46,6 +46,7 @@ def built_model(batch_size, seq_length, unique_chars):
     model.add(TimeDistributed(Dense(unique_chars)))
     model.add(Activation("softmax"))
     
+    # To continue training on previous weights
     # model.load_weights("./Data/Model_Weights/Weights_80.h5", by_name = True)
     # Train on ~983 songs
 
@@ -77,20 +78,20 @@ def training_model(data, epochs = 200):
         epoch_number.append(epoch+1)
         
         for i, (x, y) in enumerate(read_batches(all_characters, unique_chars)):
-            final_epoch_loss, final_epoch_accuracy = model.train_on_batch(x, y) #check documentation of train_on_batch here: https://keras.io/models/sequential/
+            final_epoch_loss, final_epoch_accuracy = model.train_on_batch(x, y) # https://keras.io/models/sequential/
             print("Batch: {}, Loss: {}, Accuracy: {}".format(i+1, final_epoch_loss, final_epoch_accuracy))
-            #here, above we are reading the batches one-by-one and train our model on each batch one-by-one.
+            # Above we are reading the batches one-by-one and train our model on each batch one-by-one.
         loss.append(final_epoch_loss)
         accuracy.append(final_epoch_accuracy)
         
-        #saving weights after every 10 epochs
+        # Saving weights after every 10 epochs
         if (epoch + 1) % 10 == 0:
             if not os.path.exists(model_weights_directory):
                 os.makedirs(model_weights_directory)
             model.save_weights(os.path.join(model_weights_directory, "Weights_{}.h5".format(epoch+1)))
             print('Saved Weights at epoch {} to file Weights_{}.h5'.format(epoch+1, epoch+1))
     
-    #creating dataframe and record all the losses and accuracies at each epoch
+    # Creating dataframe and record all the losses and accuracies at each epoch
     log_frame = pd.DataFrame(columns = ["Epoch", "Loss", "Accuracy"])
     log_frame["Epoch"] = epoch_number
     log_frame["Loss"] = loss
@@ -103,5 +104,5 @@ file.close()
 if __name__ == "__main__":
     training_model(data)
 
-log = pd.read_csv(os.path.join(data_directory, "log.csv"))
+log = pd.read_csv(os.path.join(data_directory, "log.csv")) # Outputs each epochs training data
 log
