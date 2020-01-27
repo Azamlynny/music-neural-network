@@ -36,22 +36,25 @@ def make_model(unique_chars):
     return model
 
 def generate_sequence(epoch_num, initial_index, seq_length):
+    # Open piano keys
     with open(os.path.join(data_directory, charIndex_json)) as f:
         char_to_index = json.load(f)
     index_to_char = {i:ch for ch, i in char_to_index.items()}
     unique_chars = len(index_to_char)
     
+    # Load model and weights
     model = make_model(unique_chars)
     model.load_weights(model_weights_directory + "Weights_{}.h5".format(epoch_num))
      
     sequence_index = [initial_index]
     
+    # Keep generating musical notes and appending it to the output
     for _ in tqdm(range(seq_length)):
         batch = np.zeros((1, 1))
         batch[0, 0] = sequence_index[-1]
         
         predicted_probs = model.predict_on_batch(batch).ravel()
-        sample = np.random.choice(range(unique_chars), size = 1, p = predicted_probs)
+        sample = np.random.choice(range(unique_chars), size = 1, p = predicted_probs) # 
         
         sequence_index.append(sample[0])
     
@@ -83,9 +86,9 @@ def generate_sequence(epoch_num, initial_index, seq_length):
 ep = int(input("1. Which epoch number weight you want to load into the model(10, 20, 30, ..., 90). Small number will generate more errors in music: "))
 ar = int(input("\n2. Enter any number between 0 to 86 which will be given as initial charcter to model for generating sequence: "))
 ln = int(input("\n3. Enter the length of music sequence you want to generate. Typical number is between 300-600. Too small number will generate hardly generate any sequence: "))
+amount = int(input("\n3. Enter how many songs you want to generate: "))
 
-music = generate_sequence(ep, ar, ln)
-
-print("\nMUSIC SEQUENCE GENERATED: \n")
-
-print(music)
+for i in range(0,amount):
+    music = generate_sequence(ep, ar, ln)
+    print("\nMUSIC SEQUENCE GENERATED: \n")
+    print(music)
